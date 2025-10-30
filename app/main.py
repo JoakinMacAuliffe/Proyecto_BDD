@@ -97,57 +97,39 @@ def menu_stored_procedures():
 
 # ============== FUNCIONES VER DATOS ==============
 
+def mostrar_tabla(tabla, limit=10):
+    """Muestra los nombres de columnas y los datos de la tabla indicada"""
+    columnas = execute_query(
+        f"SELECT column_name FROM information_schema.columns WHERE table_name = '{tabla}' ORDER BY ordinal_position"
+    )
+    nombres = [col[0] for col in columnas]
+    print(f"\n--- {tabla.upper()} ---")
+    print(" | ".join(nombres))
+    print("-" * (len(nombres) * 12))
+    datos = execute_query(f"SELECT * FROM {tabla} LIMIT {limit}")
+    for fila in datos:
+        print(" | ".join(str(valor) for valor in fila))
+
 def ver_clientes():
-    """Muestra todos los clientes"""
-    clientes = execute_query("SELECT * FROM cliente LIMIT 10")
-    print("\n--- CLIENTES ---")
-    for c in clientes:
-        print(f"  RUT: {c[0]} | Nombre: {c[1]} {c[4]} {c[5]} | Ingresos: ${c[3]}")
+    mostrar_tabla("cliente")
 
 def ver_acciones():
-    """Muestra acciones comerciales"""
-    acciones = execute_query("SELECT * FROM accion_comercial")
-    print("\n--- ACCIONES COMERCIALES ---")
-    for a in acciones:
-        print(f"  ID: {a[0]} | {a[1]} | Presupuesto: ${a[3]}")
+    mostrar_tabla("accion_comercial")
 
 def ver_resultados():
-    """Muestra resultados"""
-    resultados = execute_query("SELECT * FROM resultado")
-    print("\n--- RESULTADOS ---")
-    if not resultados:
-        print("  No hay resultados registrados")
-    for r in resultados:
-        print(f"  ID: {r[0]} | Titulo: {r[1]} | Clientes: {r[2]} | Rentabilidad: ${r[3]}")
+    mostrar_tabla("resultado")
 
 def ver_segmentos():
-    """Muestra segmentos"""
-    segmentos = execute_query("SELECT * FROM segmento")
-    print("\n--- SEGMENTOS ---")
-    for s in segmentos:
-        print(f"  ID: {s[0]} | {s[2]} | Tamano: {s[1]}")
+    mostrar_tabla("segmento")
 
 def ver_productos():
-    """Muestra productos bancarios"""
-    productos = execute_query("SELECT * FROM producto_bancario")
-    print("\n--- PRODUCTOS BANCARIOS ---")
-    for p in productos:
-        print(f"  ID: {p[0]} | {p[1]} | Tipo: {p[2]}")
+    mostrar_tabla("producto_bancario")
 
 def ver_canales():
-    """Muestra canales de difusion"""
-    canales = execute_query("SELECT * FROM canal_difusion")
-    print("\n--- CANALES DE DIFUSION ---")
-    for c in canales:
-        print(f"  ID: {c[0]} | {c[1]} | Tipo: {c[2]}")
+    mostrar_tabla("canal_difusion")
 
 def ver_telefonos():
-    """Muestra telefonos de clientes"""
-    telefonos = execute_query("SELECT * FROM telefono_cliente LIMIT 20")
-    print("\n--- TELEFONOS DE CLIENTES ---")
-    for t in telefonos:
-        print(f"  RUT: {t[0]} | Telefono: {t[1]}")
-
+    mostrar_tabla("telefono_cliente", limit=20)
 def buscar_cliente():
     """Busca cliente por RUT"""
     rut = input("Ingresa RUT del cliente: ")

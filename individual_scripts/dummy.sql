@@ -1,8 +1,10 @@
 SELECT 
-    s.nombre_segmento,
-    SUM(r.rentabilidad) AS rentabilidad_total
-FROM segmento s
-JOIN segmento_accion sa ON s.id_segmento = sa.id_segmento
-JOIN resultado r ON sa.id_accion_comercial = r.id_accion_comercial
-GROUP BY s.nombre_segmento
-ORDER BY rentabilidad_total DESC;
+    cd.nombre_canal AS canal,
+    COUNT(*) AS cantidad_promociones
+FROM canal_difusion cd
+JOIN accion_canal aca ON cd.id_canal_difusion = aca.id_canal_difusion
+JOIN accion_comercial ac ON aca.id_accion_comercial = ac.id_accion_comercial
+JOIN producto_bancario p ON ac.id_producto_bancario = p.id_producto_bancario
+WHERE p.tipo ILIKE 'Crédito'
+GROUP BY cd.nombre_canal
+ORDER BY cantidad_promociones DESC;
