@@ -14,7 +14,8 @@ def mostrar_menu():
     print("1. VER DATOS")
     print("2. INSERTAR DATOS")
     print("3. STORED PROCEDURES")
-    print("4. Salir")
+    print("4. EJECUTAR QUERY PERSONALIZADO") # ¡NUEVA OPCIÓN!
+    print("5. Salir")
     print("="*50)
 
 def menu_ver_datos():
@@ -130,6 +131,7 @@ def ver_canales():
 
 def ver_telefonos():
     mostrar_tabla("telefono_cliente", limit=20)
+
 def buscar_cliente():
     """Busca cliente por RUT"""
     rut = input("Ingresa RUT del cliente: ")
@@ -159,8 +161,8 @@ def insertar_cliente():
     
     try:
         query = f"""INSERT INTO cliente (rut, nombre_cliente, fecha_nacimiento, 
-               ingresos_mensuales, apellido_paterno, apellido_materno) 
-               VALUES ('{rut}', '{nombre}', '{fecha_nac}', {ingresos}, '{apellido_p}', '{apellido_m}')"""
+                 ingresos_mensuales, apellido_paterno, apellido_materno) 
+                 VALUES ('{rut}', '{nombre}', '{fecha_nac}', {ingresos}, '{apellido_p}', '{apellido_m}')"""
         execute_update(query)
         print("[OK] Cliente insertado correctamente")
     except Exception as e:
@@ -176,7 +178,7 @@ def insertar_producto():
     
     try:
         query = f"""INSERT INTO producto_bancario (id_producto_bancario, nombre_producto, tipo, fecha_lanzamiento)
-                    VALUES ({id_prod}, '{nombre}', '{tipo}', '{fecha}')"""
+                     VALUES ({id_prod}, '{nombre}', '{tipo}', '{fecha}')"""
         execute_update(query)
         print("[OK] Producto insertado correctamente")
     except Exception as e:
@@ -194,7 +196,7 @@ def insertar_accion():
     
     try:
         query = f"""INSERT INTO accion_comercial (id_accion_comercial, nombre_accion, objetivo, presupuesto, fecha_inicio, id_producto_bancario)
-                    VALUES ({id_accion}, '{nombre}', '{objetivo}', {presupuesto}, '{fecha}', {id_producto})"""
+                     VALUES ({id_accion}, '{nombre}', '{objetivo}', {presupuesto}, '{fecha}', {id_producto})"""
         execute_update(query)
         print("[OK] Accion comercial insertada correctamente")
     except Exception as e:
@@ -210,7 +212,7 @@ def insertar_segmento():
     
     try:
         query = f"""INSERT INTO segmento (id_segmento, tamano_segmento, nombre_segmento, criterios)
-                    VALUES ({id_seg}, {tamano}, '{nombre}', '{criterios}')"""
+                     VALUES ({id_seg}, {tamano}, '{nombre}', '{criterios}')"""
         execute_update(query)
         print("[OK] Segmento insertado correctamente")
     except Exception as e:
@@ -225,7 +227,7 @@ def insertar_canal():
     
     try:
         query = f"""INSERT INTO canal_difusion (id_canal_difusion, nombre_canal, tipo)
-                    VALUES ({id_canal}, '{nombre}', '{tipo}')"""
+                     VALUES ({id_canal}, '{nombre}', '{tipo}')"""
         execute_update(query)
         print("[OK] Canal insertado correctamente")
     except Exception as e:
@@ -241,6 +243,73 @@ def generar_resultado():
         print("[OK] Resultado generado exitosamente.")
     except Exception as e:
         print(f"[ERROR] Error: {e}")
+
+# ============== FUNCION PERSONALIZADA DDL/DML/DQL ==============
+
+def ejecutar_query_personalizado():
+    """
+    Permite al usuario ingresar y ejecutar una query SQL
+    detectando si es de solo lectura (SELECT) o de modificación (UPDATE/DELETE/INSERT/DDL).
+    """
+    print("\n--- EJECUTAR QUERY PERSONALIZADO ---")
+    print("ADVERTENCIA: Ingresa comandos SQL válidos. Sé responsable con ALTER/DROP.")
+    
+    # Permite al usuario escribir queries de varias líneas
+    query_lines = []
+    print("Ingresa tu query (termina con una línea vacía):")
+    while True:
+        line = input("SQL > ")
+        if not line:
+            break
+        query_lines.append(line)
+        
+    query = " ".join(query_lines).strip()
+    
+    if not query:
+        print("No se ingresó ninguna query.")
+        return
+
+    # Normalizar la query para la detección
+    query_upper = query.upper().strip()
+    
+    try:
+        if query_upper.startswith("SELECT"):
+            # Usar execute_query para comandos SELECT
+            resultados = execute_query(query)
+            
+            if resultados:
+                # Intenta obtener los nombres de las columnas para mejorar la visualización
+                try:
+                    # Esto requiere una suposición, en un entorno real se obtendrían de metadatos
+                    # Aquí mostramos solo los datos
+                    print("\n--- RESULTADOS ---")
+                    # Intenta mostrar una cabecera simple si la query es un SELECT simple
+                    if len(resultados) > 0 and isinstance(resultados[0], (list, tuple)):
+                        # Intentar inferir el número de columnas para el separador
+                        num_cols = len(resultados[0])
+                        print("-" * (num_cols * 15))
+                        for fila in resultados:
+                            print(" | ".join(str(valor) for valor in fila))
+                        print("-" * (num_cols * 15))
+                    else:
+                        for fila in resultados:
+                            print(fila)
+                    print(f"Filas encontradas: {len(resultados)}")
+                except Exception:
+                     for fila in resultados:
+                            print(fila)
+                     print(f"Filas encontradas: {len(resultados)}")
+            else:
+                print("[OK] Query de selección ejecutada. No se encontraron resultados.")
+                
+        else:
+            # Usar execute_update para comandos INSERT, UPDATE, DELETE, CREATE, DROP, ALTER (DML/DDL)
+            execute_update(query)
+            print(f"[OK] Query de modificación (DML/DDL) ejecutada correctamente.")
+            
+    except Exception as e:
+        print(f"[ERROR] La ejecución de la query falló: {e}")
+
 
 # ============== MAIN ==============
 
@@ -260,7 +329,9 @@ def main():
                 menu_insertar_datos()
             elif opcion == "3":
                 menu_stored_procedures()
-            elif opcion == "4":
+            elif opcion == "4": # NUEVA OPCION
+                ejecutar_query_personalizado()
+            elif opcion == "5": # Opción 5 ahora es salir
                 print("\nHasta luego!")
                 break
             else:
