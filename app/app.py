@@ -12,7 +12,7 @@ def mostrar_menu():
     print("="*50)
     print("1. VER DATOS")
     print("2. INSERTAR DATOS")
-    print("3. STORED PROCEDURES")
+    print("3. EJECUTAR STORED PROCEDURES")
     print("4. EJECUTAR QUERY PERSONALIZADO")
     print("5. Salir")
     print("="*50)
@@ -79,7 +79,7 @@ def menu_insertar_datos():
         print("Opcion invalida")
 
 def menu_stored_procedures():
-    print("\n--- STORED PROCEDURES ---")
+    print("\n--- EJECUTAR STORED PROCEDURES ---")
     print("1. Generar resultado (SP generar_resultado)")
     print("0. Volver al menu principal")
     
@@ -92,7 +92,7 @@ def menu_stored_procedures():
     else:
         print("Opcion invalida")
 
-def mostrar_tabla(tabla, limit=10):
+def mostrar_tabla(tabla, limit=None):
     columnas = execute_query(
         f"SELECT column_name FROM information_schema.columns WHERE table_name = '{tabla}' ORDER BY ordinal_position"
     )
@@ -100,7 +100,12 @@ def mostrar_tabla(tabla, limit=10):
     print(f"\n--- {tabla.upper()} ---")
     print(" | ".join(nombres))
     print("-" * (len(nombres) * 12))
-    datos = execute_query(f"SELECT * FROM {tabla} LIMIT {limit}")
+    
+    query = f"SELECT * FROM {tabla}"
+    if limit is not None:
+        query += f" LIMIT {limit}"
+        
+    datos = execute_query(query)
     for fila in datos:
         print(" | ".join(str(valor) for valor in fila))
 
