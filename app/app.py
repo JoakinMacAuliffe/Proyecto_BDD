@@ -7,19 +7,17 @@ from db import (
 )
 
 def mostrar_menu():
-    """Muestra el menú principal"""
     print("\n" + "="*50)
     print("      GESTIÓN DE MARKETING - BANCO FUTURA")
     print("="*50)
     print("1. VER DATOS")
     print("2. INSERTAR DATOS")
     print("3. STORED PROCEDURES")
-    print("4. EJECUTAR QUERY PERSONALIZADO") # ¡NUEVA OPCIÓN!
+    print("4. EJECUTAR QUERY PERSONALIZADO")
     print("5. Salir")
     print("="*50)
 
 def menu_ver_datos():
-    """Submenú para ver datos"""
     print("\n--- VER DATOS ---")
     print("1. Ver clientes")
     print("2. Ver acciones comerciales")
@@ -55,7 +53,6 @@ def menu_ver_datos():
         print("Opcion invalida")
 
 def menu_insertar_datos():
-    """Submenú para insertar datos"""
     print("\n--- INSERTAR DATOS ---")
     print("1. Insertar cliente")
     print("2. Insertar producto bancario")
@@ -82,7 +79,6 @@ def menu_insertar_datos():
         print("Opcion invalida")
 
 def menu_stored_procedures():
-    """Submenú para stored procedures"""
     print("\n--- STORED PROCEDURES ---")
     print("1. Generar resultado (SP generar_resultado)")
     print("0. Volver al menu principal")
@@ -96,10 +92,7 @@ def menu_stored_procedures():
     else:
         print("Opcion invalida")
 
-# ============== FUNCIONES VER DATOS ==============
-
 def mostrar_tabla(tabla, limit=10):
-    """Muestra los nombres de columnas y los datos de la tabla indicada"""
     columnas = execute_query(
         f"SELECT column_name FROM information_schema.columns WHERE table_name = '{tabla}' ORDER BY ordinal_position"
     )
@@ -133,7 +126,6 @@ def ver_telefonos():
     mostrar_tabla("telefono_cliente", limit=20)
 
 def buscar_cliente():
-    """Busca cliente por RUT"""
     rut = input("Ingresa RUT del cliente: ")
     query = f"SELECT * FROM cliente WHERE rut = '{rut}'"
     cliente = execute_query(query)
@@ -147,10 +139,7 @@ def buscar_cliente():
     else:
         print("Cliente no encontrado")
 
-# ============== FUNCIONES INSERTAR DATOS ==============
-
 def insertar_cliente():
-    """Inserta un nuevo cliente"""
     print("\n--- NUEVO CLIENTE ---")
     rut = input("RUT (12.345.678-9): ")
     nombre = input("Nombre: ")
@@ -169,7 +158,6 @@ def insertar_cliente():
         print(f"[ERROR] Error: {e}")
 
 def insertar_producto():
-    """Inserta un nuevo producto bancario"""
     print("\n--- NUEVO PRODUCTO BANCARIO ---")
     id_prod = input("ID producto: ")
     nombre = input("Nombre: ")
@@ -185,7 +173,6 @@ def insertar_producto():
         print(f"[ERROR] Error: {e}")
 
 def insertar_accion():
-    """Inserta una nueva accion comercial"""
     print("\n--- NUEVA ACCION COMERCIAL ---")
     id_accion = input("ID accion: ")
     nombre = input("Nombre: ")
@@ -203,7 +190,6 @@ def insertar_accion():
         print(f"[ERROR] Error: {e}")
 
 def insertar_segmento():
-    """Inserta un nuevo segmento"""
     print("\n--- NUEVO SEGMENTO ---")
     id_seg = input("ID segmento: ")
     tamano = input("Tamano segmento: ")
@@ -219,7 +205,6 @@ def insertar_segmento():
         print(f"[ERROR] Error: {e}")
 
 def insertar_canal():
-    """Inserta un nuevo canal de difusion"""
     print("\n--- NUEVO CANAL DE DIFUSION ---")
     id_canal = input("ID canal: ")
     nombre = input("Nombre: ")
@@ -233,10 +218,7 @@ def insertar_canal():
     except Exception as e:
         print(f"[ERROR] Error: {e}")
 
-# ============== FUNCIONES STORED PROCEDURES ==============
-
 def generar_resultado():
-    """Llama al SP para generar resultado"""
     id_accion = input("Ingresa ID de accion comercial: ")
     try:
         call_procedure('generar_resultado', [int(id_accion)])
@@ -244,17 +226,10 @@ def generar_resultado():
     except Exception as e:
         print(f"[ERROR] Error: {e}")
 
-# ============== FUNCION PERSONALIZADA DDL/DML/DQL ==============
-
 def ejecutar_query_personalizado():
-    """
-    Permite al usuario ingresar y ejecutar una query SQL
-    detectando si es de solo lectura (SELECT) o de modificación (UPDATE/DELETE/INSERT/DDL).
-    """
     print("\n--- EJECUTAR QUERY PERSONALIZADO ---")
     print("ADVERTENCIA: Ingresa comandos SQL válidos. Sé responsable con ALTER/DROP.")
     
-    # Permite al usuario escribir queries de varias líneas
     query_lines = []
     print("Ingresa tu query (termina con una línea vacía):")
     while True:
@@ -269,23 +244,21 @@ def ejecutar_query_personalizado():
         print("No se ingresó ninguna query.")
         return
 
-    # Normalizar la query para la detección
     query_upper = query.upper().strip()
     
     try:
         if query_upper.startswith("SELECT"):
-            # Usar execute_query para comandos SELECT
+            
             resultados = execute_query(query)
             
             if resultados:
-                # Intenta obtener los nombres de las columnas para mejorar la visualización
+                
                 try:
-                    # Esto requiere una suposición, en un entorno real se obtendrían de metadatos
-                    # Aquí mostramos solo los datos
+                    
                     print("\n--- RESULTADOS ---")
-                    # Intenta mostrar una cabecera simple si la query es un SELECT simple
+                    
                     if len(resultados) > 0 and isinstance(resultados[0], (list, tuple)):
-                        # Intentar inferir el número de columnas para el separador
+                        
                         num_cols = len(resultados[0])
                         print("-" * (num_cols * 15))
                         for fila in resultados:
@@ -303,19 +276,15 @@ def ejecutar_query_personalizado():
                 print("[OK] Query de selección ejecutada. No se encontraron resultados.")
                 
         else:
-            # Usar execute_update para comandos INSERT, UPDATE, DELETE, CREATE, DROP, ALTER (DML/DDL)
+            
             execute_update(query)
             print(f"[OK] Query de modificación (DML/DDL) ejecutada correctamente.")
             
     except Exception as e:
         print(f"[ERROR] La ejecución de la query falló: {e}")
 
-
-# ============== MAIN ==============
-
 def main():
-    """Función principal"""
-    # Inicializar conexión
+    
     init_connection_pool()
     
     try:
@@ -329,9 +298,9 @@ def main():
                 menu_insertar_datos()
             elif opcion == "3":
                 menu_stored_procedures()
-            elif opcion == "4": # NUEVA OPCION
+            elif opcion == "4":
                 ejecutar_query_personalizado()
-            elif opcion == "5": # Opción 5 ahora es salir
+            elif opcion == "5":
                 print("\nHasta luego!")
                 break
             else:
@@ -343,7 +312,7 @@ def main():
         print("\n\nAplicacion interrumpida")
     
     finally:
-        # Cerrar conexiones
+        
         close_connection_pool()
 
 if __name__ == "__main__":
